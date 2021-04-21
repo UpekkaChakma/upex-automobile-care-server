@@ -110,7 +110,7 @@ app.post('/admin/addService', (req, res) => {
     adminsCollection.insertOne(newAdmin)
       .then(result => {
         console.log('inserted count', result.insertedCount);
-        res.send({status: 'success', code: 200});
+        res.send(result);
       })
   })
 //<================= find all orders list======================
@@ -131,9 +131,16 @@ app.post('/allServicesList', (req, res) => {
 
 //<=================== delete a service by id ========================>
   app.delete('/deleteService/:id', (req, res) => {
-    const id = ObjectId(req.params.id);
+    const id = req.params.id;
     servicesCollection.deleteOne({ _id: id })
-      .then(documents => res.send({status: 'Successfully Delete', code: 200}));
+      .then(documents => res.send(documents));
+  })
+  //<=================== update user order status ========================>
+  app.put('/update/orderStatus/:id', (req, res) => {
+    const id = req.params.id;
+    const {status} = req.body;
+    ordersCollection.updateOne({ _id: id }, {$set:{status: status}})
+      .then(documents => res.send(documents));
   })
 
 
