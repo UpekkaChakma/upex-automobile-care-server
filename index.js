@@ -25,12 +25,13 @@ client.connect(err => {
 
 //<<<<<<<<<<<<<<<<<<<<<<< user part >>>>>>>>>>>>>>>>>>>>>>>
 
-//================== order a single service ========================
+//================== order a single order ========================
 app.post('/addOrder', (req, res) => {
-  const newOrder = req.body;
+  const newOrder = ObjectId(req.body);
+  console.log(newOrder)
   ordersCollection.insertOne(newOrder)
-  .then(() => {
-      res.send({status: 'Success Ordered', code: 200});
+  .then((items) => {
+      res.send(items);
   })
 });
 
@@ -137,7 +138,8 @@ app.post('/allServicesList', (req, res) => {
   })
   //<=================== update user order status ========================>
   app.put('/update/orderStatus/:id', (req, res) => {
-    const id = req.params.id;
+    const id = ObjectId(req.params.id);
+    console.log(id);
     const {status} = req.body;
     ordersCollection.updateOne({ _id: id }, {$set:{status: status}})
       .then(documents => res.send(documents));
