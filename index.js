@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const {MongoClient, ObjectId } = require('mongodb');
+const { MongoClient, ObjectId } = require('mongodb');
 require('dotenv').config();
 const app = express();
 app.use(cors());
@@ -17,46 +17,46 @@ const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 client.connect(err => {
   const adminsCollection = client.db(`${process.env.DB_NAME}`).collection("admins");
-  const reviewsCollection = client.db( `${process.env.DB_NAME}` ).collection("reviews");
-  const servicesCollection = client.db( `${process.env.DB_NAME}` ).collection("services");
-  const ordersCollection = client.db( `${process.env.DB_NAME}` ).collection("orders");
+  const reviewsCollection = client.db(`${process.env.DB_NAME}`).collection("reviews");
+  const servicesCollection = client.db(`${process.env.DB_NAME}`).collection("services");
+  const ordersCollection = client.db(`${process.env.DB_NAME}`).collection("orders");
 
   console.log("database connected successfully");
 
-//<<<<<<<<<<<<<<<<<<<<<<< user part >>>>>>>>>>>>>>>>>>>>>>>
+  //<<<<<<<<<<<<<<<<<<<<<<< user part >>>>>>>>>>>>>>>>>>>>>>>
 
-//================== order a single order ========================
-app.post('/addOrder', (req, res) => {
-  const newOrder = ObjectId(req.body);
-  console.log(newOrder)
-  ordersCollection.insertOne(newOrder)
-  .then((items) => {
-      res.send(items);
+  //================== order a single order ========================
+  app.post('/addOrder', (req, res) => {
+    const newOrder = ObjectId(req.body);
+    console.log(newOrder)
+    ordersCollection.insertOne(newOrder)
+      .then((items) => {
+        res.send(items);
+      })
+  });
+
+  //<===============add aREVIEW=========================
+
+  app.post('/user/review', (req, res) => {
+    const newReview = req.body;
+    reviewsCollection.insertOne(newReview)
+      .then(result => {
+        console.log('inserted count', result.insertedCount);
+        res.send({ status: 'success', code: 200 });
+      })
   })
-});
-
-//<===============add aREVIEW=========================
-
-app.post('/user/review', (req, res) => {
-  const newReview = req.body;
-  reviewsCollection.insertOne(newReview)
-    .then(result => {
-      console.log('inserted count', result.insertedCount);
-      res.send({status: 'success', code: 200});
-    })
-})
 
 
-//<=================== find a single service by id =====================>
+  //<=================== find a single service by id =====================>
   app.get('/findService/:id', (req, res) => {
     const id = ObjectId(req.params.id);
     servicesCollection.find({ _id: id })
-    .toArray((err, items) => {
-      res.send(items)
-    })
+      .toArray((err, items) => {
+        res.send(items)
+      })
   })
 
-//<===========find all servicesCollection=====================> 
+  //<===========find all servicesCollection=====================> 
   app.post('/services', (req, res) => {
     servicesCollection.find()
       .toArray((err, items) => {
@@ -74,38 +74,38 @@ app.post('/user/review', (req, res) => {
   //=====================find order list by email=====================
   app.post('/user/totalOrderedLists', (req, res) => {
     const email = req.body.email;
-    ordersCollection.find({email: email}).sort({$natural:-1})
-    .toArray((err, items) => {
-      res.send(items)
-      console.log(items)
-    })
-})
-
-
-//<<<<<<<<<<<<<<<<<<<<< admin part >>>>>>>>>>>>>>>>>>>>>>
-
-//=====================find input email in admin list=====================
-app.post('/isAdmin', (req, res) => {
-  const email = req.body.email;
-  adminsCollection.find({email: email})
-  .toArray((err, items) => {
-    res.send(items)
+    ordersCollection.find({ email: email }).sort({ $natural: -1 })
+      .toArray((err, items) => {
+        res.send(items)
+        console.log(items)
+      })
   })
-})
-
-//=====================add a service=====================
-
-app.post('/admin/addService', (req, res) => {
-  const newService = req.body;
-  servicesCollection.insertOne(newService)
-    .then(result => {
-      console.log('inserted count', result.insertedCount);
-      res.send({status: 'success', code: 200});
-    })
-})
 
 
-//<======================= add ADMIN =======================>
+  //<<<<<<<<<<<<<<<<<<<<< admin part >>>>>>>>>>>>>>>>>>>>>>
+
+  //=====================find input email in admin list=====================
+  app.post('/isAdmin', (req, res) => {
+    const email = req.body.email;
+    adminsCollection.find({ email: email })
+      .toArray((err, items) => {
+        res.send(items)
+      })
+  })
+
+  //=====================add a service=====================
+
+  app.post('/admin/addService', (req, res) => {
+    const newService = req.body;
+    servicesCollection.insertOne(newService)
+      .then(result => {
+        console.log('inserted count', result.insertedCount);
+        res.send({ status: 'success', code: 200 });
+      })
+  })
+
+
+  //<======================= add ADMIN =======================>
   app.post('/admin/makeAdmin', (req, res) => {
     const newAdmin = req.body;
     adminsCollection.insertOne(newAdmin)
@@ -114,7 +114,7 @@ app.post('/admin/addService', (req, res) => {
         res.send(result);
       })
   })
-//<================= find all orders list======================
+  //<================= find all orders list======================
   app.post('/allOrdersList', (req, res) => {
     ordersCollection.find()
       .toArray((err, items) => {
@@ -122,17 +122,17 @@ app.post('/admin/addService', (req, res) => {
       })
   })
 
-//<===================== find all services list =======================
-app.post('/allServicesList', (req, res) => {
-  servicesCollection.find()
-    .toArray((err, items) => {
-      res.send(items)
-    })
-})
+  //<===================== find all services list =======================
+  app.post('/allServicesList', (req, res) => {
+    servicesCollection.find()
+      .toArray((err, items) => {
+        res.send(items)
+      })
+  })
 
-//<=================== delete a service by id ========================>
-  app.delete('/deleteService/:id', (req, res) => {
-    const id = req.params.id;
+  //<=================== delete a service by id ========================>
+  app.delete('/admin/deleteService/:id', (req, res) => {
+    const id = ObjectId(req.params.id);
     servicesCollection.deleteOne({ _id: id })
       .then(documents => res.send(documents));
   })
@@ -140,12 +140,12 @@ app.post('/allServicesList', (req, res) => {
   app.put('/update/orderStatus/:id', (req, res) => {
     const id = ObjectId(req.params.id);
     console.log(id);
-    const {status} = req.body;
-    ordersCollection.updateOne({ _id: id }, {$set:{status: status}})
+    const { status } = req.body;
+    ordersCollection.updateOne({ _id: id }, { $set: { status: status } })
       .then(documents => res.send(documents));
   })
 
 
 });
 
-app.listen( process.env.PORT || port)
+app.listen(process.env.PORT || port)
